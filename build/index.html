@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Parkinson's Detection + AI Advisor</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      background-image: url("/static/backimage.jpg");
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      color: white;
+    }
+    .container {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      margin: 50px auto;
+      border-radius: 15px;
+      max-width: 600px;
+    }
+    input, textarea, button {
+      margin-top: 10px;
+      padding: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+    textarea {
+      resize: vertical;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Parkinson's Disease Image Detection</h2>
+
+    <input type="text" id="userName" placeholder="Enter your name" /><br>
+    <input type="file" id="imageUpload" accept="image/*" /><br>
+    <button onclick="uploadImage()">Predict</button>
+
+    <h3>Prediction: <span id="prediction-result"></span></h3>
+    <h4>Confidence: <span id="accuracy-result"></span>%</h4>
+
+    <h3>Ask AI Advisor:</h3>
+    <textarea id="userInput" rows="3" placeholder="Ask something..."></textarea><br>
+    <button onclick="askAI()">Ask</button>
+    <p><strong>AI Response:</strong> <span id="aiResponse"></span></p>
+
+    <br>
+    <a href="/download-report" target="_blank">
+      <button>Download PDF Report</button>
+    </a>
+  </div>
+
+  <script>
+    document.getElementById("userName").addEventListener("change", function () {
+      fetch("/set-name", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: this.value })
+      });
+    });
+
+    function uploadImage() {
+      const fileInput = document.getElementById("imageUpload");
+      if (!fileInput.files.length) {
+        alert("Please upload an image.");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("image", fileInput.files[0]);
+
+      fetch("/predict", { method: "POST", body: formData })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("prediction-result").innerText = data.result;
+          document.getElementById("accuracy-result").innerText = data.accuracy;
+        })
+        .catch(() => alert("Prediction failed."));
+    }
+
+    function askAI() {
+      const message = document.getElementById("userInput").value;
+      fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("aiResponse").innerText = data.response;
+      })
+      .catch(() => {
+        document.getElementById("aiResponse").innerText = "Error contacting AI.";
+      });
+    }
+  </script>
+</body>
+</html>
+
