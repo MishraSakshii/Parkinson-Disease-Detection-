@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Parkinson's Disease Detection</title>
+</head>
+<body style="font-family:sans-serif;text-align:center;margin:40px;">
+  <h2>Parkinson's Disease Image Detection</h2>
+  <input type="file" id="imageUpload" accept="image/*"/>
+  <br/><br/>
+  <button onclick="uploadImage()">Predict</button>
+  <h3>Prediction: <span id="prediction-result"></span></h3>
+  <h4>Confidence: <span id="accuracy-result"></span>%</h4>
+
+  <h3>Ask AI Advisor:</h3>
+  <textarea id="userInput" rows="3" cols="50" placeholder="Ask something..."></textarea><br/>
+  <button onclick="askAI()">Ask</button>
+  <p><strong>AI Response:</strong> <span id="aiResponse"></span></p>
+
+  <script>
+    function uploadImage() {
+      const fileInput = document.getElementById("imageUpload");
+      if (!fileInput.files.length) {
+        alert("Please upload an image.");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("image", fileInput.files[0]);
+
+      fetch("/predict", { method: "POST", body: formData })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("prediction-result").innerText = data.result;
+          document.getElementById("accuracy-result").innerText = data.accuracy;
+        })
+        .catch(() => alert("Prediction failed."));
+    }
+
+    function askAI() {
+      const message = document.getElementById("userInput").value;
+      fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("aiResponse").innerText = data.response;
+      })
+      .catch(() => {
+        document.getElementById("aiResponse").innerText = "Error contacting AI.";
+      });
+    }
+  </script>
+</body>
+</html>
