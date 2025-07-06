@@ -1,0 +1,21 @@
+# Don't upload environment variables
+.env
+
+# Don't upload dataset images
+dataset/
+parkinson_dataset/
+uploads/
+
+# Don't upload trained models
+*.pth
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+
+# Ignore temporary files
+*.log
+*.DS_Store
+
+# Ignore IDE/editor settings (optional)
+.vscode/
